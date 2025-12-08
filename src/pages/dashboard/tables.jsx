@@ -10,21 +10,53 @@ import {
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { authorsTableData, projectsTableData } from "@/data";
+import React, { useState, useEffect } from 'react';
+
+    
+
+         // Empty dependency array ensures the effect runs only once on mount
 
 export function LeagueTables() {
-  return (
+  const [tableData, setTableData] = useState(null);
+  
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    
+  useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('http://192.168.29.45:8088/myapp/leagues/getTable',{
+          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
+            'Custom-Header': 'My-Custom-Value', // Example for a custom header
+          }}).then(res => res.json())
+            .then(json => setTableData(json));
+            } catch (err) {
+                console.log("error::"+err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
+    if (!loading && tableData!=null)  return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
         <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
           <Typography variant="h6" color="white">
-            Authors Table
+            League Table
           </Typography>
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <table className="w-full min-w-[640px] table-auto">
             <thead>
               <tr>
-                {["Team", "Played","Points", "W-D-L"].map((el) => (
+                {["Pos","Team", "Played","Points", "W-D-L", "GF", "GA", "GD"].map((el) => (
                   <th
                     key={el}
                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -40,161 +72,62 @@ export function LeagueTables() {
               </tr>
             </thead>
             <tbody>
-              {authorsTableData.map(
-                ({ img, name, email, job, online, date }, key) => {
-                  const className = `py-3 px-5 ${
-                    key === authorsTableData.length - 1
+              {tableData.map(({ teamName,	pos,	games,	wins,	draws,	loss,	points,	ga,	gf,	gd }, key) => {
+                 const className = `py-3 px-5 ${
+                    key === tableData.length - 1
                       ? ""
                       : "border-b border-blue-gray-50"
                   }`;
-
-                  return (
-                    <tr key={name}>
+                 return (
+                    <tr key={teamName}>
                       <td className={className}>
-                        <div className="flex items-center gap-4">
-                          <Avatar src={img} alt={name} size="sm" variant="rounded" />
-                          <div>
-                            <Typography
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {pos}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Typography
                               variant="small"
                               color="blue-gray"
                               className="font-semibold"
                             >
-                              {name}
+                              {teamName}
                             </Typography>
-                            <Typography className="text-xs font-normal text-blue-gray-500">
-                              {email}
-                            </Typography>
-                          </div>
-                        </div>
                       </td>
                       <td className={className}>
                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                          {job[0]}
+                          {games}
                         </Typography>
                       </td>
                       <td className={className}>
                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                          {online}
+                          {points}
                         </Typography>
                       </td>
                       <td className={className}>
                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                          {date}
+                          {wins}-{draws}-{loss}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {gf}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {ga}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {gd}
                         </Typography>
                       </td>
                     </tr>
                   );
-                }
-              )}
-            </tbody>
-          </table>
-        </CardBody>
-      </Card>
-      <Card>
-        <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-          <Typography variant="h6" color="white">
-            Projects Table
-          </Typography>
-        </CardHeader>
-        <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-          <table className="w-full min-w-[640px] table-auto">
-            <thead>
-              <tr>
-                {["companies", "members", "budget", "completion", ""].map(
-                  (el) => (
-                    <th
-                      key={el}
-                      className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                    >
-                      <Typography
-                        variant="small"
-                        className="text-[11px] font-bold uppercase text-blue-gray-400"
-                      >
-                        {el}
-                      </Typography>
-                    </th>
-                  )
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {projectsTableData.map(
-                ({ img, name, members, budget, completion }, key) => {
-                  const className = `py-3 px-5 ${
-                    key === projectsTableData.length - 1
-                      ? ""
-                      : "border-b border-blue-gray-50"
-                  }`;
-
-                  return (
-                    <tr key={name}>
-                      <td className={className}>
-                        <div className="flex items-center gap-4">
-                          <Avatar src={img} alt={name} size="sm" />
-                          <Typography
-                            variant="small"
-                            color="blue-gray"
-                            className="font-bold"
-                          >
-                            {name}
-                          </Typography>
-                        </div>
-                      </td>
-                      <td className={className}>
-                        {members.map(({ img, name }, key) => (
-                          <Tooltip key={name} content={name}>
-                            <Avatar
-                              src={img}
-                              alt={name}
-                              size="xs"
-                              variant="circular"
-                              className={`cursor-pointer border-2 border-white ${
-                                key === 0 ? "" : "-ml-2.5"
-                              }`}
-                            />
-                          </Tooltip>
-                        ))}
-                      </td>
-                      <td className={className}>
-                        <Typography
-                          variant="small"
-                          className="text-xs font-medium text-blue-gray-600"
-                        >
-                          {budget}
-                        </Typography>
-                      </td>
-                      <td className={className}>
-                        <div className="w-10/12">
-                          <Typography
-                            variant="small"
-                            className="mb-1 block text-xs font-medium text-blue-gray-600"
-                          >
-                            {completion}%
-                          </Typography>
-                          <Progress
-                            value={completion}
-                            variant="gradient"
-                            color={completion === 100 ? "green" : "gray"}
-                            className="h-1"
-                          />
-                        </div>
-                      </td>
-                      <td className={className}>
-                        <Typography
-                          as="a"
-                          href="#"
-                          className="text-xs font-semibold text-blue-gray-600"
-                        >
-                          <EllipsisVerticalIcon
-                            strokeWidth={2}
-                            className="h-5 w-5 text-inherit"
-                          />
-                        </Typography>
-                      </td>
-                    </tr>
-                  );
-                }
-              )}
+              })
+              }
             </tbody>
           </table>
         </CardBody>
