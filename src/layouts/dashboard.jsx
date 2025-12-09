@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import React, { useState, useEffect } from 'react';
-import { Cog6ToothIcon } from "@heroicons/react/24/solid";
+import { MdAssignmentAdd } from "react-icons/md";
+
 import { MdOutlineAddModerator } from "react-icons/md";
 
 import { RiUserAddFill  } from "react-icons/ri";
@@ -50,7 +51,8 @@ export function Dashboard() {
         >
           {currentpage.includes("addplayer") ? (
             <RiUserAddFill className="h-5 w-5" />
-          ) : (
+          ) : currentpage.includes("fixtures")?(  <MdAssignmentAdd className="h-5 w-5" />
+          ): (
             <MdOutlineAddModerator className="h-5 w-5" />
           )}
         </IconButton>

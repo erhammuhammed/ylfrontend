@@ -14,14 +14,18 @@ import {
   setSidenavType,
   setFixedNavbar,
 } from "@/context";
-
+import Checkbox from '@mui/material/Checkbox';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 export function Configurator1({ currentPage }) {
   const [controller, dispatch] = useMaterialTailwindController();
   const { openConfigurator, sidenavColor, sidenavType, fixedNavbar } =
     controller;
   const [stars, setStars] = React.useState(0);
-
+const currentDate = new Date();
   const sidenavColors = {
     white: "from-gray-100 to-gray-100 border-gray-200",
     dark: "from-black to-black border-gray-200",
@@ -51,6 +55,12 @@ export function Configurator1({ currentPage }) {
   const [playerPhone, setPlayerPhone] = React.useState("");
   const [playerPosition, setPlayerPosition] = React.useState("");
   const [playerTeam, setPlayerTeam] = React.useState("");
+  const [fxhomeTeam, setHomeTeam] = React.useState("");
+  const [fxawayTeam, setAwayTeam] = React.useState("");
+  const [fxtime, setDate] = React.useState("");
+  const [fxfinished, setFinished] = React.useState(false);
+  const [fxhomeGoals, setHomeGoals] = React.useState("0");
+  const [fxawayGoals, setAwayGoals] = React.useState("0");
   const [teams, setTeams] = React.useState([]);
 
   // Default form state
@@ -95,6 +105,42 @@ export function Configurator1({ currentPage }) {
     }
   };
 
+  const submitFixture = async (e) => {
+    e.preventDefault();
+    try {
+        const dateString =  dayjs(fxtime).format('YYYY-MM-DD');
+      const formdata = {
+        homeTeamId: fxhomeTeam,
+        awayTeamId: fxawayTeam,
+        time: dateString ,
+        finished: fxfinished,
+        homeGoals: parseInt(fxhomeGoals) || 0,
+        awayGoals: parseInt(fxawayGoals) || 0,
+      };
+      console.log("Fixture data:", formdata);
+      const res = await fetch("http://192.168.29.45:8088/myapp/match/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formdata),
+      });
+      const resJson = await res.json();
+      if (res.status === 200) {
+        setHomeTeam("");
+        setHomeGoals("0");
+        setAwayTeam("");
+        setAwayGoals("0");
+        setFinished(false);
+        setDate(null);
+        console.log("Fixture added successfully");
+        closeConfigurator();
+      } else {
+        console.error("Error creating fixture:", resJson);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  };
+
   const submitDefault = (e) => {
     e.preventDefault();
     console.log("Save setting:", { settingTitle, settingValue });
@@ -103,7 +149,7 @@ export function Configurator1({ currentPage }) {
   };
 
   const isAddPlayer = (currentPage || "").toLowerCase().includes("addplayer");
-
+  const isFixtures = (currentPage || "").toLowerCase().includes("fixtures");    
   return (
     <div
       className={`fixed top-0 right-0 z-50 h-full w-full md:w-96 bg-white shadow-lg transform transition-transform ${
@@ -113,7 +159,7 @@ export function Configurator1({ currentPage }) {
       <div className="flex items-center justify-between p-4 border-b">
         <div>
           <Typography variant="h6">{isAddPlayer ? "Add Player" : "Configurator"}</Typography>
-          <Typography className="text-sm text-gray-500">{isAddPlayer ? "Create a new player" : "Add new team"}</Typography>
+          <Typography className="text-sm text-gray-500">{isAddPlayer ? "Create a new player" : isFixtures ? "Add a fixture": "Add new team"}</Typography>
         </div>
         <IconButton color="gray" onClick={closeConfigurator}>
           <XMarkIcon className="h-5 w-5" />
@@ -121,7 +167,7 @@ export function Configurator1({ currentPage }) {
       </div>
 
       <div className="p-4 overflow-auto h-[calc(100%-72px)]">
-        {isAddPlayer ? (
+        {isAddPlayer && !isFixtures? (
           <form onSubmit={submitAddPlayer} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -178,7 +224,7 @@ export function Configurator1({ currentPage }) {
               <Button type="submit">Add Player</Button>
             </div>
           </form>
-        ) : (
+        ) : !isAddPlayer && !isFixtures?(
           <form onSubmit={submitDefault} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Add team</label>
@@ -203,7 +249,78 @@ export function Configurator1({ currentPage }) {
               <Button type="submit">Save</Button>
             </div>
           </form>
-        )}
+        ):( <form onSubmit={submitFixture} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Home</label>
+              <select
+                value={fxhomeTeam}
+                onChange={(e) => setHomeTeam(e.target.value)}
+                className="mt-1 block w-full rounded border px-3 py-2"
+                required
+              >
+                <option value="">Select team</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Home team goals</label>
+              <input
+                value={fxhomeGoals}
+                onChange={(e) => setHomeGoals(e.target.value)}
+                className="mt-1 block w-full rounded border px-3 py-2"
+                placeholder="Home"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Away</label>
+              <select
+                value={fxawayTeam}
+                onChange={(e) => setAwayTeam(e.target.value)}
+                className="mt-1 block w-full rounded border px-3 py-2"
+                required
+              >
+                <option value="">Select team</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+             <div>
+              <label className="block text-sm font-medium text-gray-700">Away team goals</label>
+              <input
+                value={fxawayGoals}
+                onChange={(e) => setAwayGoals(e.target.value)}
+                className="mt-1 block w-full rounded border px-3 py-2"
+                placeholder="Away"
+                required
+              />
+            </div>
+            <div>
+                 <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker label="Date" onChange={(date) => setDate(date)}/>
+                 </LocalizationProvider>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Match finished?</label>
+                <Checkbox
+                    checked={fxfinished}
+                    onChange={(e) => setFinished(e.target.checked)}
+                    slotProps={{
+                        input: { 'aria-label': 'controlled' },
+                    }}
+                    />
+            </div>
+            <div className="flex justify-end">
+              <Button type="submit">Save</Button>
+            </div>
+          </form>)}
       </div>
     </div>
   );
