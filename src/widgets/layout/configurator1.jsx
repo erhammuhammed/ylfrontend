@@ -20,11 +20,26 @@ import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = React.useState(() => {
+    try {
+      const item = localStorage.getItem(key);
+       console.log("inside local::"+(item))
+      return item ? item : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+}
+
 export function Configurator1({ currentPage }) {
   const [controller, dispatch] = useMaterialTailwindController();
+   const [data, setData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
   const { openConfigurator, sidenavColor, sidenavType, fixedNavbar } =
     controller;
-  const [stars, setStars] = React.useState(0);
 const currentDate = new Date();
   const sidenavColors = {
     white: "from-gray-100 to-gray-100 border-gray-200",
@@ -36,19 +51,7 @@ const currentDate = new Date();
   };
 
   // Fetch teams on mount
-  React.useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const response = await fetch("http://192.168.29.45:8088/myapp/teams/getAll");
-        const data = await response.json();
-        setTeams(data || []);
-      } catch (err) {
-        console.error("Error fetching teams:", err);
-        setTeams([]);
-      }
-    };
-    fetchTeams();
-  }, []);
+ 
   // Add Player form state
   const [playerName, setPlayerName] = React.useState("");
   const [playerEmail, setPlayerEmail] = React.useState("");
@@ -61,11 +64,29 @@ const currentDate = new Date();
   const [fxfinished, setFinished] = React.useState(false);
   const [fxhomeGoals, setHomeGoals] = React.useState("0");
   const [fxawayGoals, setAwayGoals] = React.useState("0");
-  const [teams, setTeams] = React.useState([]);
+  const [teams, setTeams] = React.useState(null)
 
   // Default form state
   const [settingTitle, setSettingTitle] = React.useState("");
   const [settingValue, setSettingValue] = React.useState("");
+
+   React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('teams');
+      console.log('What is stored?', stored);
+      if (typeof window !== 'undefined') {
+        const storedData = localStorage.getItem('teams');
+        if (storedData) {
+          setTeams(JSON.parse(stored));
+        }
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  }, []);
+
 
   const closeConfigurator = () => setOpenConfigurator(dispatch, false);
 

@@ -7,6 +7,7 @@ import {
   Chip,
   Tooltip,
   Progress,
+  Button,
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { authorsTableData, projectsTableData } from "@/data";
@@ -18,11 +19,41 @@ import React, { useState, useEffect } from 'react';
 
 export function Fixtures() {
   const [tableData, setTableData] = useState(null);
-  
+  const [rowExpanded,setRowExpanded] = useState(false);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+    const [teams, setTeams] = useState([]);
   useEffect(() => {
+    try {
+        const teamresponse = fetch("http://192.168.29.45:8088/myapp/teams/getAll",{
+          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
+            'Custom-Header': 'My-Custom-Value', // Example for a custom header
+          }}).then(res => res.json()).then(json => {  localStorage.setItem('teams', JSON.stringify(json));});
+        const data = response.json();
+         console.info("teams", data);
+        setTeams(data || []);
+      } catch (err) {
+        console.error("Error fetching teams:", err);
+        setTeams([]);
+      }
+      try {
+                const playerresponse =  fetch('http://192.168.29.45:8088/myapp/player/getAll',{
+          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
+            'Custom-Header': 'My-Custom-Value', // Example for a custom header
+          }}).then(res => res.json())
+            .then(json => {  localStorage.setItem('players', JSON.stringify(json))});
+            } catch (err) {
+                console.log("error::"+err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
         const fetchData = async () => {
             try {
                 const response = await fetch('http://192.168.29.45:8088/myapp/match/fixture',{
@@ -42,6 +73,9 @@ export function Fixtures() {
         };
         fetchData();
     }, []);
+     const handleClick = () => {
+    setRowExpanded(!rowExpanded);
+  };
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
     if (!loading && tableData!=null)  return (
@@ -62,7 +96,7 @@ export function Fixtures() {
                       : "border-b border-blue-gray-50"
                   }`;
                  return (
-                    <div>
+                    <div  onClick={handleClick}>
                        <tr key={homeTeam}>
                       <td className={className}>
                         <Typography
@@ -108,7 +142,21 @@ export function Fixtures() {
                               {awayTeam}
                             </Typography>
                       </td>
+                      <td className={className}>
+                        <Button>Update</Button>
+                      </td>
                     </tr>
+                    {rowExpanded?(<tr key={homeTeam}>
+                      <td className={className}>
+                        <Typography
+                              variant="small"
+                              color="blue-gray"
+                              className="font-semibold"
+                            >
+                              {time}
+                            </Typography>
+                      </td>
+                    </tr>):null}
                     </div>
                   );
               })
