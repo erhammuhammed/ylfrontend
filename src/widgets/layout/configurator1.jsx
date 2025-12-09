@@ -133,6 +133,7 @@ const currentDate = new Date();
         setDate(null);
         console.log("Fixture added successfully");
         closeConfigurator();
+        location.reload()
       } else {
         console.error("Error creating fixture:", resJson);
       }
