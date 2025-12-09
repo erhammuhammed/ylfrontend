@@ -24,6 +24,7 @@ import {
   useMaterialTailwindController,
   setOpenConfigurator,
   setOpenSidenav,
+  setOpenConfiguratorSource,
 } from "@/context";
 
 export function DashboardNavbar() {
@@ -31,7 +32,7 @@ export function DashboardNavbar() {
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
-
+  
   return (
     <Navbar
       color={fixedNavbar ? "white" : "transparent"}
@@ -181,7 +182,7 @@ export function DashboardNavbar() {
           <IconButton
             variant="text"
             color="blue-gray"
-            onClick={() => setOpenConfigurator(dispatch, true)}
+            onClick={() => {setOpenConfigurator(dispatch, true)}}
           >
             <Cog6ToothIcon className="h-5 w-5 text-blue-gray-500" />
           </IconButton>

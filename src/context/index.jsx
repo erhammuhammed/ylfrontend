@@ -24,6 +24,9 @@ export function reducer(state, action) {
     case "OPEN_CONFIGURATOR": {
       return { ...state, openConfigurator: action.value };
     }
+    case "OPEN_CONFIGURATOR_SOURCE": {
+      return { ...state, openConfiguratorSource: action.value };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -83,3 +86,5 @@ export const setFixedNavbar = (dispatch, value) =>
   dispatch({ type: "FIXED_NAVBAR", value });
 export const setOpenConfigurator = (dispatch, value) =>
   dispatch({ type: "OPEN_CONFIGURATOR", value });
+export const setOpenConfiguratorSource = (dispatch, value) =>
+  dispatch({ type: "OPEN_CONFIGURATOR_SOURCE", value });
