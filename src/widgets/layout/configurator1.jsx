@@ -20,18 +20,6 @@ import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-function useLocalStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = React.useState(() => {
-    try {
-      const item = localStorage.getItem(key);
-       console.log("inside local::"+(item))
-      return item ? item : initialValue;
-    } catch (error) {
-      console.error(error);
-      return initialValue;
-    }
-  });
-}
 
 export function Configurator1({ currentPage }) {
   const [controller, dispatch] = useMaterialTailwindController();

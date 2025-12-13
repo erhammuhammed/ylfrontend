@@ -9,6 +9,10 @@ import {
   Progress,
   Button,
 } from "@material-tailwind/react";
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Checkbox from '@mui/material/Checkbox';
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { authorsTableData, projectsTableData } from "@/data";
 import React, { useState, useEffect } from 'react';
@@ -23,22 +27,17 @@ export function Fixtures() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [teams, setTeams] = useState([]);
-  useEffect(() => {
-    try {
-        const teamresponse = fetch("http://192.168.29.45:8088/myapp/teams/getAll",{
-          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
-            'Custom-Header': 'My-Custom-Value', // Example for a custom header
-          }}).then(res => res.json()).then(json => {  localStorage.setItem('teams', JSON.stringify(json));});
-        const data = response.json();
-         console.info("teams", data);
-        setTeams(data || []);
-      } catch (err) {
-        console.error("Error fetching teams:", err);
-        setTeams([]);
-      }
+    const [matchTeams, setMatchTeams] = useState([]);
+    const [players, setPlayers] = useState([]);
+      const [thisMatchId, setThisMatchId] = React.useState("");
+      const [playerId, setPlayerId] = React.useState("");
+      const [goal, setGoal] = React.useState(false);
+      const [assist, setAssist] = React.useState(false);
+         const [cleansheet, setCleansheet] = React.useState(false);
+
+    
+
+  useEffect( () => {
       try {
                 const playerresponse =  fetch('http://192.168.29.45:8088/myapp/player/getAll',{
           method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
@@ -47,7 +46,7 @@ export function Fixtures() {
             'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
             'Custom-Header': 'My-Custom-Value', // Example for a custom header
           }}).then(res => res.json())
-            .then(json => {  localStorage.setItem('players', JSON.stringify(json))});
+            .then(json => { setPlayers(json); localStorage.setItem('players', JSON.stringify(json))});
             } catch (err) {
                 console.log("error::"+err);
                 setError(err);
@@ -73,8 +72,38 @@ export function Fixtures() {
         };
         fetchData();
     }, []);
-     const handleClick = () => {
+     const handleClick = (key) => {
+     console.log("match id is::"+key)
+     setThisMatchId(key)
     setRowExpanded(!rowExpanded);
+  };
+
+  const submitScoreUpdate = async (e) => {
+     e.preventDefault();
+        try {
+          const formdata = {
+            matchId: thisMatchId,
+            playerId: playerId,
+            goal: goal ,
+            assist: assist,
+            cleansheet: cleansheet,
+          };
+          console.log("Fixture data:", formdata);
+          const response = await fetch('http://192.168.29.45:8088/myapp/match/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Inform the API the data is JSON
+        },
+        body: JSON.stringify(formdata), // Convert the form data state to a JSON string
+      });
+      if(response!=null) {
+        console.log("OK");
+      } else {
+        console.log("error")
+      }
+        } catch (err) {
+          console.error("Error:", err);
+        }
   };
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
@@ -89,15 +118,15 @@ export function Fixtures() {
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <table className="w-full min-w-[640px] table-auto">
             <tbody>
-              {tableData.map(({ homeTeam,	awayTeam,	time,	finished,	home_goals,	away_goals}, key) => {
+              {tableData.map(({ matchId, homeTeam,	awayTeam,	time,	finished,	home_goals,	away_goals}, key) => {
                  const className = `py-3 px-5 ${
                     key === tableData.length - 1
                       ? ""
                       : "border-b border-blue-gray-50"
                   }`;
                  return (
-                    <div  onClick={handleClick}>
-                       <tr key={homeTeam}>
+                    <div  >
+                       <tr key={key}>
                       <td className={className}>
                         <Typography
                               variant="small"
@@ -108,7 +137,7 @@ export function Fixtures() {
                             </Typography>
                       </td>
                     </tr>
-                      <tr key={homeTeam}>
+                      <tr key={matchId} onClick={()=>handleClick(matchId)}>
                       <td className={className}>
                         <Typography
                               variant="small"
@@ -142,22 +171,50 @@ export function Fixtures() {
                               {awayTeam}
                             </Typography>
                       </td>
-                      <td className={className}>
-                        <Button>Update</Button>
-                      </td>
                     </tr>
-                    {rowExpanded?(<tr key={homeTeam}>
-                      <td className={className}>
-                        <Typography
-                              variant="small"
-                              color="blue-gray"
-                              className="font-semibold"
-                            >
-                              {time}
-                            </Typography>
-                      </td>
-                    </tr>):null}
-                    </div>
+                    <tr key={homeTeam}>
+                       {rowExpanded ? (
+                         <td className={className}>
+                           <form onSubmit={submitScoreUpdate} className="space-y-4">
+                             <div>
+                               <label className="block text-sm font-medium text-gray-700">Player</label>
+                               <select
+                                 value={playerId}
+                                 onChange={(e) => setPlayerId(e.target.value)}
+                                 className="mt-1 block w-full rounded border px-3 py-2"
+                                 required
+                               >
+                                 <option value="">Select player</option>
+                                 {players.map((player) => (
+                                   <option key={player.id} value={player.id}>
+                                     {player.name}
+                                   </option>
+                                 ))}
+                               </select>
+                               <FormControlLabel
+                                 value="end"
+                                 control={<Checkbox onChange={(e) => setGoal(e.target.checked)} checked={goal} />}
+                                 label="Goal"
+                                 labelPlacement="end"
+                               />
+                               <FormControlLabel
+                                 value="end"
+                                 control={<Checkbox onChange={(e) => setAssist(e.target.checked)} checked={assist} />}
+                                 label="Assist"
+                                 labelPlacement="end"
+                               />
+                               <FormControlLabel
+                                 value="end"
+                                 control={<Checkbox checked={cleansheet} onChange={(e) => setCleansheet(e.target.checked)} />}
+                                 label="Cleansheet"
+                                 labelPlacement="end"
+                               />
+                               <Button type="submit">Save</Button>
+                             </div>
+                           </form>
+                         </td>) : null}
+                     </tr>
+                   </div>
                   );
               })
               }
