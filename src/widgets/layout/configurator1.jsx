@@ -53,7 +53,8 @@ const currentDate = new Date();
   const [fxhomeGoals, setHomeGoals] = React.useState("0");
   const [fxawayGoals, setAwayGoals] = React.useState("0");
   const [teams, setTeams] = React.useState(null)
-
+ 
+        const connectionString = import.meta.env.VITE_API_URL
   // Default form state
   const [settingTitle, setSettingTitle] = React.useState("");
   const [settingValue, setSettingValue] = React.useState("");
@@ -89,7 +90,7 @@ const currentDate = new Date();
     };
     console.log("Add player:", formdata);
     try {
-      const res = await fetch("http://192.168.29.45:8088/myapp/player/add", {
+      const res = await fetch(connectionString+"myapp/player/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formdata),
@@ -127,7 +128,7 @@ const currentDate = new Date();
         awayGoals: parseInt(fxawayGoals) || 0,
       };
       console.log("Fixture data:", formdata);
-      const res = await fetch("http://192.168.29.45:8088/myapp/match/add", {
+      const res = await fetch(connectionString+"myapp/match/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formdata),

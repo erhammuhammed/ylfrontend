@@ -10,13 +10,13 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export function AddPlayer() {
   const [playersData, setPlayersData] = useState(null);
-    
+     const connectionString = import.meta.env.VITE_API_URL
       const [error, setError] = useState(null);
       const [loading, setLoading] = useState(true);
 useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://192.168.29.45:8088/myapp/player/getAll',{
+                const response = await fetch(connectionString+'myapp/player/getAll',{
           method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
           headers: {
             'Content-Type': 'application/json',

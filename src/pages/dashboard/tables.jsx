@@ -21,11 +21,12 @@ export function LeagueTables() {
   
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+    console.log("asfaf"+import.meta.env.BASE_URL)
+        const connectionString = import.meta.env.VITE_API_URL
   useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://192.168.29.45:8088/myapp/leagues/getTable',{
+                const response = await fetch(connectionString+'myapp/leagues/getTable',{
           method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
           headers: {
             'Content-Type': 'application/json',

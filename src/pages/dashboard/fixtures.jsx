@@ -41,6 +41,7 @@ export function Fixtures() {
       const [assist, setAssist] = React.useState(false);
          const [cleansheet, setCleansheet] = React.useState(false);
 
+        const connectionString = import.meta.env.VITE_API_URL
         const handleEditOpen = (data) => {
           console.log("edit clicekd"+data)
           setRowExpanded(false);
@@ -173,7 +174,7 @@ export function Fixtures() {
 
   useEffect( () => {
       try {
-                const playerresponse =  fetch('http://192.168.29.45:8088/myapp/player/getAll',{
+                const playerresponse =  fetch(connectionString+'myapp/player/getAll',{
           method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
           headers: {
             'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ export function Fixtures() {
             }
         const fetchData = async () => {
             try {
-                const response = await fetch('http://192.168.29.45:8088/myapp/match/fixture',{
+                const response = await fetch(connectionString+'myapp/match/fixture',{
           method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
           headers: {
             'Content-Type': 'application/json',
@@ -211,7 +212,7 @@ const handleRowClick = async (rowId) => {
     setEditOpen(0);
     setExpandedRowId(expandedRowId === rowId ? null : rowId);
     setThisMatchId(rowId);
-    const response = await fetch('http://192.168.29.45:8088/myapp/match/details?matchId='+rowId,{
+    const response = await fetch(connectionString+'myapp/match/details?matchId='+rowId,{
           method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
           headers: {
             'Content-Type': 'application/json',
@@ -231,7 +232,7 @@ const handleRowClick = async (rowId) => {
             cleansheet: cleansheet,
           };
           console.log("Fixture data:", formdata);
-          const response = await fetch('http://192.168.29.45:8088/myapp/match/update', {
+          const response = await fetch(connectionString+'myapp/match/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Inform the API the data is JSON
