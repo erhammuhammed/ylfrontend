@@ -21,7 +21,7 @@ export function LeagueTables() {
   
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    console.log("asfaf"+import.meta.env.BASE_URL)
+    console.log("log base url"+import.meta.env.BASE_URL)
         const connectionString = import.meta.env.VITE_API_URL
   useEffect(() => {
         const fetchData = async () => {

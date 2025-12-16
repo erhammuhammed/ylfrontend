@@ -59,6 +59,7 @@ export function Navbar({ brandName, routes, action }) {
         })}
         <IconButton
           variant="text"
+          color="black"
           size="sm"
           className="ml-auto text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
           onClick={() => setOpenNav(!openNav)}
