@@ -54,7 +54,7 @@ const currentDate = new Date();
   const [fxawayGoals, setAwayGoals] = React.useState("0");
   const [teams, setTeams] = React.useState(null)
  
-        const connectionString = import.meta.env.VITE_API_URL
+        const connectionString = 'https://ylbackend.greensky-cbe2d3e4.southindia.azurecontainerapps.io/'
   // Default form state
   const [settingTitle, setSettingTitle] = React.useState("");
   const [settingValue, setSettingValue] = React.useState("");

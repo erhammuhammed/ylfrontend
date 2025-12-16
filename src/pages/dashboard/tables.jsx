@@ -22,7 +22,7 @@ export function LeagueTables() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     console.log("log base url"+import.meta.env.BASE_URL)
-        const connectionString = import.meta.env.VITE_API_URL
+        const connectionString = 'https://ylbackend.greensky-cbe2d3e4.southindia.azurecontainerapps.io/'
   useEffect(() => {
         const fetchData = async () => {
             try {

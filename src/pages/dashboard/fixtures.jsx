@@ -41,7 +41,7 @@ export function Fixtures() {
       const [assist, setAssist] = React.useState(false);
          const [cleansheet, setCleansheet] = React.useState(false);
 
-        const connectionString = import.meta.env.VITE_API_URL
+        const connectionString = 'https://ylbackend.greensky-cbe2d3e4.southindia.azurecontainerapps.io/'
         const handleEditOpen = (data) => {
           console.log("edit clicekd"+data)
           setRowExpanded(false);
