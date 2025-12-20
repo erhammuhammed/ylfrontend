@@ -14,24 +14,20 @@ export function AddPlayer() {
       const [error, setError] = useState(null);
       const [loading, setLoading] = useState(true);
 useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(connectionString+'myapp/player/getAll',{
-          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
-            'Custom-Header': 'My-Custom-Value', // Example for a custom header
-          }}).then(res => res.json())
-            .then(json => setPlayersData(json));
-            } catch (err) {
-                console.log("error::"+err);
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
+  try {
+      const stored = localStorage.getItem('players');
+      console.log('What is stored?', stored);
+      if (typeof window !== 'undefined') {
+        const storedData = localStorage.getItem('players');
+        if (storedData) {
+          setPlayersData(JSON.parse(stored));
+        }
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
     }, []);
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;

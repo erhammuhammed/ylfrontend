@@ -25,6 +25,7 @@ import React, { useState, useEffect } from 'react';
          // Empty dependency array ensures the effect runs only once on mount
 
 export function Fixtures() {
+  const userrole = localStorage.getItem("user")
   const [tableData, setTableData] = useState(null);
   const [editOpen, setEditOpen] = useState(0);
   const [matchData, setMatchData] = useState(null);
@@ -32,9 +33,9 @@ export function Fixtures() {
   const [expandedRowId,setExpandedRowId] = useState(0);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [teams, setTeams] = useState([]);
+    const [teams, setTeams] = useState(true);
     const [matchTeams, setMatchTeams] = useState([]);
-    const [players, setPlayers] = useState([]);
+    const [players,setPlayers] = useState(true);
       const [thisMatchId, setThisMatchId] = React.useState(0);
       const [playerId, setPlayerId] = React.useState(0);
       const [goal, setGoal] = React.useState(false);
@@ -102,9 +103,9 @@ export function Fixtures() {
                             </Typography>
                       </td>
                       <td>
-                        <button onClick={e=>handleEditOpen(rowData)}>
+                        {userrole=='admin'?<button onClick={e=>handleEditOpen(rowData)}>
                           <MdEdit />
-                        </button>
+                        </button>:null}
                       </td>
                       <td>
                         <button onClick={e=>handleRowClick(rowData.matchId)}>
@@ -174,21 +175,35 @@ export function Fixtures() {
 
   useEffect( () => {
       try {
-                const playerresponse =  fetch(connectionString+'myapp/player/getAll',{
-          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
-            'Custom-Header': 'My-Custom-Value', // Example for a custom header
-          }}).then(res => res.json())
-            .then(json => { setPlayers(json); localStorage.setItem('players', JSON.stringify(json))});
-            } catch (err) {
-                console.log("error::"+err);
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
+      const stored = localStorage.getItem('teams');
+      console.log('What is stored?', stored);
+      if (typeof window !== 'undefined') {
+        const storedData = localStorage.getItem('teams');
+        if (storedData) {
+          setTeams(JSON.parse(stored));
+        }
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+    try {
+      const stored = localStorage.getItem('players');
+      console.log('What is stored?', stored);
+      if (typeof window !== 'undefined') {
+        const storedData = localStorage.getItem('players');
+        if (storedData) {
+          setPlayers(JSON.parse(stored));
+        }
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
         const fetchData = async () => {
+          
             try {
                 const response = await fetch(connectionString+'myapp/match/fixture',{
           method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.

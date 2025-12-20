@@ -16,6 +16,8 @@ import routes from "@/routes";
 import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
 
 export function Dashboard() {
+  const connectionString = 'https://ylbackend.greensky-cbe2d3e4.southindia.azurecontainerapps.io/'
+  const userrole = localStorage.getItem("user");
   const [controller, dispatch] = useMaterialTailwindController();
   console.log("currentpage::"+window.location.href)
   const [currentpage, setCurrentPage] = useState('');
@@ -23,9 +25,41 @@ export function Dashboard() {
   const location = useLocation();
   const pagePath = location.pathname;
   const pageName = pagePath.split('/').filter(Boolean).pop() || 'home';
+  const [loading, setLoading] = useState(true);
+   const [error, setError] = React.useState(null);
   const { sidenavType } = controller;
   useEffect(() => {
     setCurrentPage(pagePath);
+    try {
+                const playerresponse =  fetch(connectionString+'myapp/player/getAll',{
+          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
+            'Custom-Header': 'My-Custom-Value', // Example for a custom header
+          }}).then(res => res.json())
+            .then(json => { localStorage.setItem('players', JSON.stringify(json))});
+            } catch (err) {
+                console.log("error::"+err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+            try {
+                const playerresponse =  fetch(connectionString+'myapp/teams/getAll',{
+          method: 'GET', // Or 'POST', 'PUT', 'DELETE', etc.
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Example for an authorization token
+            'Custom-Header': 'My-Custom-Value', // Example for a custom header
+          }}).then(res => res.json())
+            .then(json => { localStorage.setItem('teams', JSON.stringify(json))});
+            } catch (err) {
+                console.log("error::"+err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
   }, [pagePath]);
   return (
     
@@ -39,7 +73,7 @@ export function Dashboard() {
       <div className="p-4 xl:ml-80">
         <DashboardNavbar />
         <Configurator1 currentPage={configPage} />
-        <IconButton
+        {userrole=='admin'?<IconButton
           size="lg"
           color="white"
           className="fixed bottom-8 right-8 z-40 rounded-full shadow-blue-gray-900/10"
@@ -55,7 +89,7 @@ export function Dashboard() {
           ): (
             <MdOutlineAddModerator className="h-5 w-5" />
           )}
-        </IconButton>
+        </IconButton>:null}
         <Routes>
           {routes.map(
             ({ layout, pages }) =>

@@ -46,7 +46,7 @@ export const routes = [
         icon: <ServerStackIcon {...icon} />,
         name: "sign in",
         path: "/sign-in",
-        element: <AddPlayer />,
+        element: <SignIn />,
       },
       {
         icon: <RectangleStackIcon {...icon} />,
