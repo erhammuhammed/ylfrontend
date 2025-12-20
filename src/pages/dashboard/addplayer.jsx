@@ -10,7 +10,6 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export function AddPlayer() {
   const [playersData, setPlayersData] = useState(null);
-     const connectionString = import.meta.env.VITE_API_URL
       const [error, setError] = useState(null);
       const [loading, setLoading] = useState(true);
 useEffect(() => {
